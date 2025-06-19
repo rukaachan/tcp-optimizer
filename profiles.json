@@ -14,14 +14,22 @@
       "net.ipv4.tcp_low_latency": "0",
       "net.ipv4.tcp_autocorking": "1",
       "net.ipv4.tcp_fastopen": "0",
-      "net.ipv4.tcp_no_metrics_save": "0"
+      "net.ipv4.tcp_no_metrics_save": "0",
+      "net.ipv4.tcp_window_scaling": "1",
+      "net.ipv4.tcp_sack": "1",
+      "net.ipv4.tcp_timestamps": "1",
+      "net.ipv4.tcp_fin_timeout": "30",
+      "net.ipv4.tcp_tw_reuse": "1",
+      "net.ipv4.tcp_syncookies": "1",
+      "net.ipv4.tcp_max_syn_backlog": "1024",
+      "net.ipv4.tcp_slow_start_after_idle": "1"
     }
   },
   "gaming": {
     "description": "Optimized for lowest latency and minimal jitter in online games.",
     "settings": {
       "net.ipv4.tcp_congestion_control": "bbr",
-      "net.core.default_qdisc": "fq",
+      "net.core.default_qdisc": "fq_codel",
       "net.ipv4.tcp_low_latency": "1",
       "net.ipv4.tcp_autocorking": "0",
       "net.ipv4.tcp_mtu_probing": "1",
@@ -32,7 +40,13 @@
       "net.core.netdev_max_backlog": "250000",
       "vm.min_free_kbytes": "65536",
       "net.ipv4.tcp_fastopen": "0",
-      "net.ipv4.tcp_no_metrics_save": "0"
+      "net.ipv4.tcp_no_metrics_save": "0",
+      "net.ipv4.tcp_window_scaling": "1",
+      "net.ipv4.tcp_sack": "1",
+      "net.ipv4.tcp_timestamps": "1",
+      "net.ipv4.tcp_fin_timeout": "15",
+      "net.ipv4.tcp_tw_reuse": "1",
+      "net.ipv4.tcp_syncookies": "1"
     }
   },
   "browsing_streaming": {
@@ -50,7 +64,12 @@
       "vm.min_free_kbytes": "65536",
       "net.ipv4.tcp_low_latency": "0",
       "net.ipv4.tcp_autocorking": "1",
-      "net.ipv4.tcp_no_metrics_save": "0"
+      "net.ipv4.tcp_no_metrics_save": "0",
+      "net.ipv4.tcp_window_scaling": "1",
+      "net.ipv4.tcp_sack": "1",
+      "net.ipv4.tcp_timestamps": "1",
+      "net.ipv4.tcp_fin_timeout": "20",
+      "net.ipv4.tcp_tw_reuse": "1"
     }
   },
   "high_speed": {
@@ -68,7 +87,12 @@
       "net.ipv4.tcp_low_latency": "0",
       "net.ipv4.tcp_autocorking": "1",
       "net.ipv4.tcp_fastopen": "3",
-      "net.ipv4.tcp_no_metrics_save": "0"
+      "net.ipv4.tcp_no_metrics_save": "0",
+      "net.ipv4.tcp_window_scaling": "1",
+      "net.ipv4.tcp_sack": "1",
+      "net.ipv4.tcp_timestamps": "1",
+      "net.ipv4.tcp_fin_timeout": "30",
+      "net.ipv4.tcp_tw_reuse": "1"
     }
   },
   "ultimate_extreme": {
@@ -86,7 +110,12 @@
       "net.ipv4.tcp_low_latency": "0",
       "net.ipv4.tcp_autocorking": "1",
       "net.ipv4.tcp_fastopen": "3",
-      "net.ipv4.tcp_no_metrics_save": "1"
+      "net.ipv4.tcp_no_metrics_save": "1",
+      "net.ipv4.tcp_window_scaling": "1",
+      "net.ipv4.tcp_sack": "1",
+      "net.ipv4.tcp_timestamps": "1",
+      "net.ipv4.tcp_fin_timeout": "60",
+      "net.ipv4.tcp_tw_reuse": "1"
     }
   }
 }

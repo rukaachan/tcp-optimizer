@@ -1,12 +1,11 @@
 # system_utils.py
-# Utility module for system operations related to TCP optimization on Linux systems.
+# Utility module for TCP optimization operations on Linux.
 
 import subprocess
 import os
 import json
 
 # --- Configuration Paths ---
-# Define file paths for system configuration and backup files used in TCP optimization.
 SYSCTL_CONF_FILE = "/etc/sysctl.d/99-arch-tcp-optimizer.conf"
 BACKUP_FILE = "/etc/sysctl.d/99-arch-tcp-optimizer.conf.bak"
 PROFILES_FILE = "profiles.json"
@@ -14,10 +13,7 @@ PROFILES_FILE = "profiles.json"
 # --- Core System Functions ---
 
 def run_command(command, suppress_errors=False):
-    """
-    Executes a shell command and returns its output as a string.
-    Optionally suppresses error messages if the command fails.
-    """
+    """Runs a shell command and returns its output."""
     try:
         result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
         return result.stdout.strip()
@@ -26,27 +22,21 @@ def run_command(command, suppress_errors=False):
         return f"Error: {e.stderr.strip()}"
 
 def get_sysctl_value(param):
-    """Retrieves the current value of a specified sysctl parameter."""
+    """Gets the value of a sysctl parameter."""
     return run_command(f"sysctl -n {param}")
 
 def write_sysctl_config(settings):
-    """
-    Writes a dictionary of TCP settings to the sysctl configuration file.
-    Overwrites the file with the provided settings, adding a header comment.
-    """
+    """Writes TCP settings to the sysctl config file."""
     with open(SYSCTL_CONF_FILE, "w") as f:
         f.write("# Arch TCP Optimizer Settings\n")
         for key, value in settings.items(): f.write(f"{key} = {value}\n")
 
 def apply_sysctl_from_conf():
-    """Applies the settings from the sysctl configuration file to the system."""
+    """Applies settings from the sysctl config file."""
     return run_command(f"sysctl -p {SYSCTL_CONF_FILE}")
 
 def backup_settings(params_to_backup):
-    """
-    Creates a backup of the current sysctl settings for specified parameters.
-    Saves the backup to a predefined file path if it doesn't already exist.
-    """
+    """Backs up current sysctl settings to a file."""
     if os.path.exists(BACKUP_FILE): return "Backup already exists."
     current_settings = {}
     for param in params_to_backup:
@@ -56,10 +46,7 @@ def backup_settings(params_to_backup):
     return "Backup of original settings created."
 
 def revert_settings():
-    """
-    Reverts system settings to their original values using a backup file.
-    Deletes configuration and backup files after successful reversion.
-    """
+    """Reverts settings to original values from backup."""
     if not os.path.exists(BACKUP_FILE):
         return "No backup file found. Nothing to revert or delete."
 
@@ -85,10 +72,7 @@ def revert_settings():
 # --- Profile Management Functions ---
 
 def load_profiles():
-    """
-    Loads TCP optimization profiles from an external JSON file.
-    Returns None if the file is not found or corrupted.
-    """
+    """Loads TCP profiles from a JSON file."""
     try:
         with open(PROFILES_FILE, 'r') as f:
             return json.load(f)
@@ -99,15 +83,12 @@ def load_profiles():
 
 # --- Active Profile Detection ---
 def get_active_profile(profiles):
-    """
-    Determines the currently active profile by comparing system settings with loaded profiles.
-    Checks key TCP parameters to identify a matching profile, returning a formatted name or status.
-    """
+    """Identifies the active profile based on current settings."""
     if not os.path.exists(SYSCTL_CONF_FILE):
         return "System Default"
     
     try:
-        # Get the three key values that help differentiate profiles
+        # Get key values to differentiate profiles
         current_congestion = get_sysctl_value("net.ipv4.tcp_congestion_control")
         current_low_latency = get_sysctl_value("net.ipv4.tcp_low_latency")
         current_wmem_max = get_sysctl_value("net.core.wmem_max")

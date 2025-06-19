@@ -1,28 +1,24 @@
 # index.py
-# Main application file for the Linux TCP Optimizer, a tool to optimize TCP settings for network performance.
+# Main file for the Linux TCP Optimizer tool.
 
 import curses
 import os
 import json
-import system_utils as su  # Import the backend module for system operations
+import system_utils as su  # Import system utilities module
 
-# --- Load Profile Data on Startup ---
-# Load TCP optimization profiles from a JSON file for use in the application.
+# --- Load Profiles Data on Startup ---
 PROFILES = su.load_profiles()
 if not PROFILES:
     print(f"Error: '{su.PROFILES_FILE}' not found or is corrupted. Please ensure it is in the same directory.")
     exit(1)
 
-# A comprehensive list of parameters managed across all profiles, used for backup purposes.
+# List of all parameters managed by profiles for backup.
 ALL_MANAGED_PARAMS = sorted(list(set(p for profile in PROFILES.values() for p in profile['settings'].keys())))
 
 # --- Terminal User Interface (TUI) Functions ---
 
 def draw_menu(stdscr, selected_row_idx, menu, title, active_profile=""):
-    """
-    Draws the main or submenu on the screen with the specified title and active profile.
-    Highlights the currently selected menu item.
-    """
+    """Draws the menu with the selected item highlighted."""
     stdscr.clear(); h, w = stdscr.getmaxyx()
     stdscr.addstr(1, 2, title, curses.A_BOLD | curses.A_UNDERLINE)
     if active_profile:
@@ -35,10 +31,7 @@ def draw_menu(stdscr, selected_row_idx, menu, title, active_profile=""):
     stdscr.refresh()
 
 def display_message(stdscr, message, pause=True):
-    """
-    Displays a temporary message in the center of the screen.
-    Optionally pauses for user input before clearing.
-    """
+    """Displays a message in the center of the screen."""
     stdscr.clear(); h, w = stdscr.getmaxyx()
     y, x = h // 2, w // 2 - len(message) // 2
     stdscr.addstr(y, x, message)
@@ -46,7 +39,7 @@ def display_message(stdscr, message, pause=True):
     stdscr.refresh()
 
 def get_confirmation(stdscr, prompt):
-    """Gets a simple Yes/No confirmation from the user."""
+    """Gets a Yes/No confirmation from the user."""
     h, w = stdscr.getmaxyx()
     stdscr.addstr(h - 4, 2, prompt + " (y/n)")
     stdscr.refresh()
@@ -56,10 +49,7 @@ def get_confirmation(stdscr, prompt):
         if key in [ord('n'), ord('N')]: return False
 
 def display_comparison_report(stdscr, before_params, after_params, before_speed={}, after_speed={}):
-    """
-    Displays a detailed report comparing system parameters and performance metrics before and after optimization.
-    Shows changes in key TCP parameters and, if available, speed test results.
-    """
+    """Shows a report comparing settings and performance before and after optimization."""
     stdscr.clear(); h, w = stdscr.getmaxyx()
     title = "Revert Report" if not before_speed else "Optimization Report: Before vs. After"
     stdscr.addstr(1, 2, title, curses.A_BOLD | curses.A_UNDERLINE)
@@ -91,10 +81,7 @@ def display_comparison_report(stdscr, before_params, after_params, before_speed=
 # --- Core Application Logic ---
 
 def run_profile_benchmark(stdscr, profile_key):
-    """
-    Runs a benchmark for a selected profile by performing speed tests before and after applying the profile settings.
-    Displays progress messages and a final comparison report.
-    """
+    """Runs speed tests before and after applying a profile to compare performance."""
     display_message(stdscr, "Importing speedtest...", pause=False)
     try: 
         import speedtest
@@ -129,10 +116,7 @@ def run_profile_benchmark(stdscr, profile_key):
     display_comparison_report(stdscr, before_params, after_params, before_speed, after_speed)
 
 def revert_and_show_report(stdscr):
-    """
-    Reverts system settings to their original state using a backup file.
-    Displays a report of the changes made during reversion.
-    """
+    """Reverts settings to original state and shows a comparison report."""
     if not os.path.exists(su.BACKUP_FILE):
         display_message(stdscr, "No backup file found. Cannot revert."); return
     try:
@@ -156,10 +140,7 @@ def revert_and_show_report(stdscr):
 
 
 def analyze_and_apply(stdscr):
-    """
-    Analyzes current network performance to recommend and optionally apply an optimal profile.
-    Uses download speed to determine the best profile for the user's connection.
-    """
+    """Analyzes network performance to recommend and apply a suitable profile."""
     display_message(stdscr, "Running analysis to recommend a profile...", pause=False)
     try:
         import speedtest
@@ -179,10 +160,7 @@ def analyze_and_apply(stdscr):
 # --- Menu Navigation Functions ---
 
 def main_menu(stdscr):
-    """
-    Displays and handles navigation for the main menu of the application.
-    Provides options to analyze network, apply profiles, revert settings, or exit.
-    """
+    """Handles the main menu navigation and options."""
     menu = ["Analyze Network & Apply Optimal Settings", "Apply Pre-defined Profile (with Benchmark)", "Revert to Original Defaults", "Exit"]
     current_row = 0
     while True:
@@ -198,10 +176,7 @@ def main_menu(stdscr):
             elif current_row == 3: break
 
 def profiles_menu(stdscr):
-    """
-    Displays a submenu for selecting and applying pre-defined profiles.
-    Shows a description of the currently selected profile for user reference.
-    """
+    """Handles the submenu for selecting pre-defined profiles."""
     if PROFILES is None:
         display_message(stdscr, "Profiles are not loaded. Cannot display profiles menu.")
         return
@@ -234,10 +209,7 @@ def profiles_menu(stdscr):
 # --- Main Entry Point ---
 
 def main(stdscr):
-    """
-    Main function initializing the TUI and handling initial system checks.
-    Ensures the script runs with root privileges and the terminal size is adequate.
-    """
+    """Initializes the TUI and checks system requirements."""
     if os.geteuid() != 0:
         return "Error: This script must be run as root."
     
