@@ -6,8 +6,8 @@ import os
 import json
 
 # --- Configuration Paths ---
-SYSCTL_CONF_FILE = "/etc/sysctl.d/99-arch-tcp-optimizer.conf"
-BACKUP_FILE = "/etc/sysctl.d/99-arch-tcp-optimizer.conf.bak"
+SYSCTL_CONF_FILE = "/etc/sysctl.d/tcp-optimizer.conf"
+BACKUP_FILE = "/etc/sysctl.d/tcp-optimizer.conf.bak"
 PROFILES_FILE = "profiles.json"
 
 # --- Core System Functions ---
@@ -28,7 +28,7 @@ def get_sysctl_value(param):
 def write_sysctl_config(settings):
     """Writes TCP settings to the sysctl config file."""
     with open(SYSCTL_CONF_FILE, "w") as f:
-        f.write("# Arch TCP Optimizer Settings\n")
+        f.write("# Linux TCP Optimizer Settings\n")
         for key, value in settings.items(): f.write(f"{key} = {value}\n")
 
 def apply_sysctl_from_conf():
