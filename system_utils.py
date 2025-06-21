@@ -83,25 +83,62 @@ def load_profiles():
 
 # --- Active Profile Detection ---
 def get_active_profile(profiles):
-    """Identifies the active profile based on current settings."""
+    """
+    Identifies the active profile by comprehensively comparing settings from all known
+    profiles against the current system's sysctl values.
+
+    Args:
+        profiles (dict): A dictionary of all available profiles, typically loaded
+                         from `profiles.json`. Each key is a profile name, and
+                         its value contains a 'settings' dictionary.
+
+    Returns:
+        str: The name of the active profile (e.g., "Balanced", "Gaming") if all its
+             settings match the current system values.
+             "System Default" if the optimizer's configuration file is not found,
+             implying no custom settings are applied.
+             "Unknown (Profiles not loaded)" if the `profiles` argument is empty or None.
+             "Custom" if the current system settings do not perfectly match all
+             parameters of any known profile, but a custom config file exists.
+             This indicates user modifications or a partially applied profile.
+    """
+    # 1. Check if the optimizer's configuration file exists.
+    # If not, it implies no settings have been applied by this tool.
     if not os.path.exists(SYSCTL_CONF_FILE):
         return "System Default"
-    
-    try:
-        # Get key values to differentiate profiles
-        current_congestion = get_sysctl_value("net.ipv4.tcp_congestion_control")
-        current_low_latency = get_sysctl_value("net.ipv4.tcp_low_latency")
-        current_wmem_max = get_sysctl_value("net.core.wmem_max")
-    except:
-        return "Unknown"
 
-    if not profiles: return "Unknown (Profiles not loaded)"
+    # 2. Check if profiles data is available.
+    if not profiles:
+        return "Unknown (Profiles not loaded)"
 
-    for key, profile_data in profiles.items():
-        settings = profile_data['settings']
-        if (settings.get("net.ipv4.tcp_congestion_control") == current_congestion and
-            settings.get("net.ipv4.tcp_low_latency") == current_low_latency and
-            settings.get("net.core.wmem_max") == current_wmem_max):
-            return key.replace('_', ' ').title()
+    # 3. Iterate through each known profile and compare its settings with live system values.
+    for profile_key, profile_data in profiles.items():
+        profile_settings = profile_data.get('settings')
+
+        # Skip this profile if it's malformed (e.g., no 'settings' dictionary).
+        if not profile_settings:
+            continue
+
+        is_match = True  # Assume this profile is active until a mismatch is found.
+        # For the current profile, check each of its defined parameters.
+        for param_name, expected_value in profile_settings.items():
+            try:
+                current_value = get_sysctl_value(param_name)
+                # Compare current system value with the profile's expected value.
+                # Normalization (string conversion, stripping whitespace) is crucial for accurate comparison.
+                if str(current_value).strip() != str(expected_value).strip():
+                    is_match = False  # A parameter mismatch means this profile is not active.
+                    break  # Exit inner loop; no need to check other params for this profile.
+            except Exception:
+                # If reading a sysctl value fails (e.g., parameter unsupported on the system),
+                # this profile cannot be considered a match.
+                is_match = False
+                break  # Exit inner loop.
+
+        if is_match:
+            # All parameters defined in this profile match the current system settings.
+            return profile_key.replace('_', ' ').title() # Return formatted profile name.
             
+    # 4. If no profile matched all its settings, the configuration is considered "Custom".
+    # This means SYSCTL_CONF_FILE exists, but its content doesn't align with any known profile.
     return "Custom"
