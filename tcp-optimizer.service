@@ -1,0 +1,30 @@
+# tcp-optimizer.service
+#
+# To install, move this file to /etc/systemd/system/
+# sudo mv tcp-optimizer.service /etc/systemd/system/tcp-optimizer.service
+#
+# Then, you can manage the service with:
+# sudo systemctl enable tcp-optimizer.service  (to start on boot)
+# sudo systemctl start tcp-optimizer.service   (to start now)
+# sudo systemctl stop tcp-optimizer.service    (to stop now)
+# sudo systemctl status tcp-optimizer.service  (to see its status)
+
+[Unit]
+Description=TCP Optimizer Dynamic Tuning Daemon
+After=network.target
+
+[Service]
+# IMPORTANT: Adjust the paths below to match the location of the project files.
+# We recommend placing the project in /opt/tcp-optimizer
+WorkingDirectory=/home/taufik/Documents/Code/coding/tcp-optimizer
+ExecStart=/usr/bin/python3 /home/taufik/Documents/Code/coding/tcp-optimizer/daemon.py
+
+# Run as root, as the script needs to modify system settings.
+User=root
+
+# Restart the service if it fails.
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
