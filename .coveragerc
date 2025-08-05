@@ -1,0 +1,19 @@
+[run]
+branch = True
+source = src
+omit = src/__init__.py, src/**/__init__.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if TYPE_CHECKING:
+    @overload
+    raise NotImplementedError
+    if __name__ == "__main__":
+    if error_message:
+    if error_message:
+
+ignore_errors = True
+
+[html]
+directory = htmlcov
